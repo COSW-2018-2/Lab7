@@ -31,29 +31,33 @@ public class MainActivity
         String oppressed = currentButton.getText().toString();
         String last = currentOperation.length()>0?currentOperation.substring(currentOperation.length()-1):"empty";
 
-        if ((isNum(oppressed)) ||
-            (isSig(oppressed) && !last.equals("empty") && isNum(last)) ||
-            (isTrigoOrSq(oppressed) && (last.equals("empty") || isSig(last)))) {
+        if ((isNum(oppressed) && sureDiv(oppressed,last)) || // is num and is sure div (avoid zero div)
+            (isSig(oppressed) && !last.equals("empty") && isNum(last)) || // is a sign and there are a num before and the currentoper is not empty
+            (isTrigoOrSq(oppressed) && (last.equals("empty") || isSig(last)))) { // is trigo or sqrt and it can stay at start or after a sign
             changeText(currentOperation+=oppressed);
         }
-        else if (oppressed.equals(".") && !last.equals("empty") && isNum(last)){
+        else if (oppressed.equals(".") && !last.equals("empty") && isNum(last)){ // the point going after a num and it can't stay if it´s empty
             changeText(currentOperation+=oppressed);
         }
-        else if (oppressed.equals("+/-") && !last.equals("empty") && isNum(last)){
+        else if (oppressed.equals("+/-") && !last.equals("empty") && isNum(last)){ //change the initial sign in the current value (if its - put + and vcvs)
             changeSign();
             changeText(currentOperation);
         }
-        else if (oppressed.equals("AC")){
+        else if (oppressed.equals("AC")){ // clean the current string of operations
             currentOperation ="";
             changeText(currentOperation);
         }
-        else if (oppressed.equals("=")){
+        else if (oppressed.equals("=")){ // get the result of the operations
             currentOperation = String.valueOf(Calculator.evalResult(currentOperation.replace("√", "sqrt")));
             changeText(currentOperation);
         }
     }
 
-    private void changeSign() {
+    private boolean sureDiv(String text,String oper) { // sure div between zero
+        return !(text.equals("0") && oper.equals("÷"));
+    }
+
+    private void changeSign() { // to change the sign of +/- operator
         StringBuilder temp =  new StringBuilder(currentOperation);
         if (temp.charAt(0)=='+'){
             temp.replace(0, 1, "-");
@@ -67,9 +71,9 @@ public class MainActivity
         currentOperation = temp.toString();
     }
 
-    private boolean isTrigoOrSq(String text) {
-        return text.equals("sin") || text.equals("cos") || text.equals("tan") ||text.equals("√") ;
-    }
+    // Identify the tipe of the element inserted
+
+    private boolean isTrigoOrSq(String text) { return text.equals("sin") || text.equals("cos") || text.equals("tan") ||text.equals("√") ;}
 
     private boolean isNum(String text) {
         return text.matches("[0-9]");
