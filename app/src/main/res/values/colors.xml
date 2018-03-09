@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <color name="organge">#EF8A00</color>
-
-
+  <color name="green">#197800</color>
+  <color name="blue">#00537D</color>
+  <color name="red">#EA4D39</color>
+  <color name="pink">#DD33FF</color>
+  <color name="yellow">#FFC133</color>
+  <color name="clear">#FF33A5</color>
 </resources>

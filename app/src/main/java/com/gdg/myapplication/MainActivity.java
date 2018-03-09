@@ -2,84 +2,84 @@ package com.gdg.myapplication;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Editable;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 public class MainActivity
     extends AppCompatActivity
-    implements View.OnClickListener
 {
-
     TextView textView;
-
-    Button button;
-
-    EditText editText;
+    String currentOperation;
 
     @Override
     protected void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
+        currentOperation = "0";
         setContentView( R.layout.activity_main );
+        chargeTextView();
+    }
+
+    protected void chargeTextView() {
         textView = (TextView) findViewById( R.id.textView );
-        button = (Button) findViewById( R.id.button );
-        editText = (EditText) findViewById( R.id.editText );
-        button.setOnClickListener( new View.OnClickListener()
-        {
-            @Override
-            public void onClick( View v )
-            {
-
-            }
-        } );
     }
 
-    @Override
-    public boolean onCreateOptionsMenu( Menu menu )
+    protected void onClick( View v )
     {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate( R.menu.menu_main, menu );
-        return true;
-    }
+        Button currentButton = (Button) v;
+        String oppressed = currentButton.getText().toString();
+        String last = currentOperation.length()>0?currentOperation.substring(currentOperation.length()-1):"empty";
 
-    @Override
-    public boolean onOptionsItemSelected( MenuItem item )
-    {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if ( id == R.id.action_settings )
-        {
-            return true;
+        if ((isNum(oppressed)) ||
+            (isSig(oppressed) && !last.equals("empty") && isNum(last)) ||
+            (isTrigoOrSq(oppressed) && (last.equals("empty") || isSig(last)))) {
+            changeText(currentOperation+=oppressed);
         }
-
-        return super.onOptionsItemSelected( item );
-    }
-
-    @Override
-    public void onClick( View v )
-    {
-        switch ( v.getId() )
-        {
-
-            case R.id.button:
-
-                textView.setTextColor( getResources().getColor( R.color.organge ) );
-                Editable text = editText.getText();
-                textView.setText( text );
-                break;
+        else if (oppressed.equals(".") && !last.equals("empty") && isNum(last)){
+            changeText(currentOperation+=oppressed);
+        }
+        else if (oppressed.equals("+/-") && !last.equals("empty") && isNum(last)){
+            changeSign();
+            changeText(currentOperation);
+        }
+        else if (oppressed.equals("AC")){
+            currentOperation ="";
+            changeText(currentOperation);
+        }
+        else if (oppressed.equals("=")){
+            currentOperation = String.valueOf(Calculator.evalResult(currentOperation.replace("√", "sqrt")));
+            changeText(currentOperation);
         }
     }
 
-    public void changeText( View view )
-    {
+    private void changeSign() {
+        StringBuilder temp =  new StringBuilder(currentOperation);
+        if (temp.charAt(0)=='+'){
+            temp.replace(0, 1, "-");
+        }
+        else if (temp.charAt(0)=='-'){
+            temp.replace(0, 1, "+");
+        }
+        else if (currentOperation.length()>0){
+            temp.insert(0,"+");
+        }
+        currentOperation = temp.toString();
+    }
+
+    private boolean isTrigoOrSq(String text) {
+        return text.equals("sin") || text.equals("cos") || text.equals("tan") ||text.equals("√") ;
+    }
+
+    private boolean isNum(String text) {
+        return text.matches("[0-9]");
+    }
+
+    private boolean isSig(String text) {
+        return text.matches("[×+÷-]");
+    }
+
+    public void changeText( String text ) {
+        textView.setText(text);
     }
 }
